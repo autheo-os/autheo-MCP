@@ -1,0 +1,961 @@
+# AUTHEO MCP
+
+
+```text
+                     AI AGENT
+                        │
+                        │ MCP
+                        ▼
+              ┌─────────────────────┐
+              │   AUTHEO MCP SERVER │
+              │       Python        │
+              └──────────┬──────────┘
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+        ▼                ▼                ▼
+   Autheo L0         Autheo L1       Marketplace
+   / Cosmos          / EVM           / DevHub
+        │                │                │
+        ├────────────────┼────────────────┤
+        │                │                │
+        ▼                ▼                ▼
+   IBC / Nodes       Contracts       Compute / Storage
+   Validators        Tokens          Providers
+   Network           Accounts        Orders
+   Governance        Events          Metering
+```
+
+And then eventually:
+
+```text
+                    AI AGENT
+                       │
+                       ▼
+                AUTHEO MCP
+                       │
+       ┌───────────────┼────────────────┐
+       ▼               ▼                ▼
+   READ TOOLS      ANALYSIS TOOLS    ACTION TOOLS
+       │               │                │
+       ▼               ▼                ▼
+ Blockchain       Marketplace        Transactions
+ Network          Economics           Orders
+ Contracts        Providers            Deployments
+ Identity         Reputation           Jobs
+```
+
+The important part is **read first, action second**.
+
+---
+
+# 1. What should Autheo MCP actually do?
+
+I'd divide it into **10 major tool families**.
+
+## 1. Blockchain Intelligence
+
+The AI should be able to ask:
+
+```text
+What is the current block height?
+
+What validators are active?
+
+What's the current network status?
+
+What transactions occurred in the last 100 blocks?
+
+What is this wallet's balance?
+
+What tokens does this address hold?
+
+What contracts exist?
+
+What events were emitted?
+
+What's the current gas price?
+
+What's happening with IBC?
+```
+
+Tools:
+
+```text
+autheo_get_network_status
+autheo_get_block
+autheo_get_latest_block
+autheo_get_transaction
+autheo_get_transaction_history
+autheo_get_account
+autheo_get_balance
+autheo_get_token_balances
+autheo_get_validator
+autheo_list_validators
+autheo_get_chain_parameters
+autheo_get_events
+```
+
+This alone makes the MCP server useful.
+
+---
+
+# 2. Autheo Marketplace
+
+This is where I think your MCP server becomes **really interesting**.
+
+Your marketplace already has concepts like:
+
+```text
+Compute
+Storage
+Hosting
+GPU
+Nodes
+Providers
+Contracts
+Orders
+Metering
+Reputation
+Reservations
+Availability
+```
+
+Expose those to AI.
+
+For example:
+
+```text
+autheo_marketplace_search
+```
+
+AI:
+
+> Find me 16 CPU cores, 64 GB RAM and 1 TB storage under $0.50/hour.
+
+MCP:
+
+```json
+{
+  "cpu": 16,
+  "ram_gb": 64,
+  "storage_gb": 1000,
+  "max_price_usd_hour": 0.50
+}
+```
+
+The server searches marketplace offers.
+
+---
+
+# 3. THEO Pricing
+
+This is especially important given your marketplace design.
+
+You have:
+
+```text
+THEO
+   ↓
+Oracle
+   ↓
+USD reference price
+```
+
+So expose:
+
+```text
+autheo_get_theo_price
+autheo_get_oracle_price
+autheo_convert_theo_to_usd
+autheo_convert_usd_to_theo
+```
+
+Example:
+
+> How much does 100 THEO represent at the current oracle price?
+
+Response:
+
+```json
+{
+  "asset": "THEO",
+  "amount": 100,
+  "oracle_price_usd": 0.09,
+  "usd_value": 9.00,
+  "timestamp": "..."
+}
+```
+
+And importantly:
+
+**don't let the AI invent exchange rates.**
+
+The MCP server gets the authoritative oracle value.
+
+---
+
+# 4. Compute Discovery
+
+This should be one of your flagship capabilities.
+
+AI could say:
+
+> Find me a GPU instance capable of running a 70B model.
+
+MCP searches:
+
+```text
+Provider
+    ↓
+GPU
+    ↓
+VRAM
+    ↓
+CPU
+    ↓
+RAM
+    ↓
+Storage
+    ↓
+Bandwidth
+    ↓
+Price
+    ↓
+Reputation
+    ↓
+Availability
+```
+
+Tool:
+
+```text
+autheo_compute_search
+```
+
+Parameters:
+
+```json
+{
+  "gpu": "H100",
+  "gpu_count": 1,
+  "min_vram_gb": 80,
+  "ram_gb": 128,
+  "storage_gb": 1000,
+  "max_theo_hour": 10,
+  "min_reputation": 0.8
+}
+```
+
+The AI gets structured offers.
+
+---
+
+# 5. Provider Reputation
+
+Your Veritsa/reputation system makes this particularly useful.
+
+Tools:
+
+```text
+autheo_get_provider
+autheo_get_provider_reputation
+autheo_compare_providers
+autheo_get_provider_history
+```
+
+For example:
+
+> Why is provider X rated the way it is?
+
+Return:
+
+```json
+{
+  "provider": "...",
+  "trust_score": 0.94,
+  "uptime": 0.997,
+  "completed_jobs": 18291,
+  "failed_jobs": 41,
+  "average_latency_ms": 18,
+  "disputes": 2
+}
+```
+
+Don't make the AI invent a score.
+
+It should consume the actual reputation system.
+
+---
+
+# 6. Storage
+
+I would make storage a **first-class MCP capability**, not just another marketplace category.
+
+AI could say:
+
+> Find 10 TB of redundant storage for 6 months.
+
+MCP:
+
+```text
+Search storage
+       ↓
+Provider discovery
+       ↓
+Capacity
+       ↓
+Replication
+       ↓
+Durability
+       ↓
+Price
+       ↓
+Reputation
+       ↓
+Contract options
+```
+
+Tools:
+
+```text
+autheo_storage_search
+autheo_storage_quote
+autheo_storage_get_provider
+autheo_storage_create_order
+autheo_storage_get_status
+```
+
+Eventually:
+
+```text
+AI → "Store this dataset on Autheo."
+```
+
+That's much more powerful.
+
+---
+
+# 7. Long-Term Contracts
+
+You specifically have long-term marketplace contracts.
+
+Expose:
+
+```text
+autheo_contract_search
+autheo_contract_quote
+autheo_contract_create
+autheo_contract_get
+autheo_contract_cancel
+autheo_contract_extend
+```
+
+Example:
+
+> Find me the cheapest 12-month storage contract with three replicas.
+
+The MCP server should calculate:
+
+```text
+Monthly THEO
+×
+12 months
+=
+Contract cost
+```
+
+Then expose the USD oracle equivalent separately.
+
+---
+
+# 8. DevHub
+
+This could become the **developer's AI interface to Autheo**.
+
+Tools:
+
+```text
+autheo_devhub_search
+autheo_devhub_get_project
+autheo_devhub_get_build
+autheo_devhub_get_deployment
+autheo_devhub_get_logs
+autheo_devhub_get_artifacts
+autheo_devhub_submit_job
+```
+
+Then:
+
+> Deploy this workload to Autheo.
+
+could eventually become:
+
+```text
+AI
+ ↓
+DevHub
+ ↓
+Marketplace
+ ↓
+Provider
+ ↓
+Reservation
+ ↓
+Node binding
+ ↓
+Workload
+ ↓
+Metering
+ ↓
+Evidence
+ ↓
+Completion
+```
+
+That's very aligned with the architecture you've been working on.
+
+---
+
+# 9. Node Operations
+
+For your actual Autheo infrastructure:
+
+```text
+autheo_list_nodes
+autheo_get_node
+autheo_get_node_health
+autheo_get_node_resources
+autheo_get_node_jobs
+autheo_get_node_metrics
+```
+
+Example:
+
+> What's wrong with node 7?
+
+MCP could gather:
+
+```text
+CPU
+RAM
+GPU
+Disk
+network
+heartbeat
+latency
+jobs
+failed jobs
+validator status
+software version
+```
+
+and return structured diagnostic information.
+
+---
+
+# 10. AI Actions
+
+This is the part I'd implement **last**.
+
+Eventually MCP can perform actions.
+
+But don't start with:
+
+```text
+AI → private key → blockchain
+```
+
+That's dangerous architecture.
+
+Instead:
+
+```text
+AI
+ ↓
+MCP
+ ↓
+Action Proposal
+ ↓
+Policy Engine
+ ↓
+Human Approval / Wallet
+ ↓
+Transaction
+ ↓
+Blockchain
+```
+
+For example:
+
+> Buy this compute instance.
+
+MCP generates:
+
+```json
+{
+  "action": "CREATE_COMPUTE_ORDER",
+  "provider": "...",
+  "duration": "24h",
+  "price_theo": 182.4,
+  "estimated_usd": 16.42
+}
+```
+
+Then:
+
+```text
+APPROVE
+```
+
+before anything happens.
+
+---
+
+# The MCP Server Should Have Three Classes of Tools
+
+I'd explicitly design the API around:
+
+## READ
+
+Safe information gathering.
+
+```text
+get_network
+get_account
+get_balance
+search_compute
+search_storage
+get_provider
+get_contract
+get_order
+get_job
+get_node
+get_price
+```
+
+## SIMULATE
+
+No transaction occurs.
+
+```text
+quote_compute
+quote_storage
+simulate_order
+estimate_gas
+estimate_contract
+estimate_theo_cost
+simulate_deployment
+```
+
+## EXECUTE
+
+Actual state-changing operations.
+
+```text
+create_order
+reserve_compute
+create_contract
+deploy_workload
+submit_transaction
+cancel_order
+release_storage
+```
+
+That separation is **extremely important**.
+
+---
+
+# Python Project
+
+I'd structure it like this:
+
+```text
+autheo-mcp/
+│
+├── pyproject.toml
+├── README.md
+├── LICENSE
+│
+├── src/
+│   └── autheo_mcp/
+│
+│       ├── __init__.py
+│       ├── server.py
+│       │
+│       ├── config.py
+│       │
+│       ├── tools/
+│       │   ├── blockchain.py
+│       │   ├── accounts.py
+│       │   ├── marketplace.py
+│       │   ├── compute.py
+│       │   ├── storage.py
+│       │   ├── contracts.py
+│       │   ├── providers.py
+│       │   ├── nodes.py
+│       │   ├── devhub.py
+│       │   └── transactions.py
+│       │
+│       ├── resources/
+│       │   ├── network.py
+│       │   ├── schemas.py
+│       │   └── documentation.py
+│       │
+│       ├── services/
+│       │   ├── rpc.py
+│       │   ├── evm.py
+│       │   ├── cosmos.py
+│       │   ├── oracle.py
+│       │   ├── marketplace.py
+│       │   └── devhub.py
+│       │
+│       ├── security/
+│       │   ├── policies.py
+│       │   ├── permissions.py
+│       │   └── approvals.py
+│       │
+│       └── models/
+│           ├── network.py
+│           ├── marketplace.py
+│           ├── provider.py
+│           ├── order.py
+│           └── contract.py
+│
+└── tests/
+    ├── test_blockchain.py
+    ├── test_marketplace.py
+    ├── test_oracle.py
+    └── test_security.py
+```
+
+---
+
+# The Actual Python MCP Layer
+
+Conceptually, the server is very simple.
+
+You have:
+
+```text
+MCP Server
+    │
+    ├── Tool
+    ├── Tool
+    ├── Tool
+    ├── Resource
+    └── Resource
+```
+
+A tool might look conceptually like:
+
+```python
+@mcp.tool()
+async def autheo_get_balance(address: str) -> dict:
+    """
+    Get the native THEO balance for an Autheo address.
+    """
+    
+    balance = await rpc.get_balance(address)
+
+    return {
+        "address": address,
+        "balance_theo": balance
+    }
+```
+
+Then another:
+
+```python
+@mcp.tool()
+async def autheo_compute_search(
+    cpu: int,
+    ram_gb: int,
+    storage_gb: int,
+    max_price_theo: float | None = None
+) -> list[dict]:
+
+    return await marketplace.search(
+        cpu=cpu,
+        ram_gb=ram_gb,
+        storage_gb=storage_gb,
+        max_price_theo=max_price_theo
+    )
+```
+
+The AI doesn't need to know your database schema.
+
+It just sees:
+
+```text
+autheo_compute_search
+```
+
+with a structured schema.
+
+---
+
+# I Would Also Add Autheo Resources
+
+This is something people often overlook.
+
+Don't make everything a tool.
+
+Resources could expose:
+
+```text
+autheo://network/status
+autheo://network/validators
+autheo://marketplace/categories
+autheo://marketplace/schema
+autheo://contracts/schema
+autheo://devhub/projects
+autheo://docs/architecture
+autheo://docs/api
+```
+
+That lets an AI client understand the Autheo environment.
+
+---
+
+# And MCP Prompts
+
+You could provide predefined workflows.
+
+For example:
+
+```text
+autheo_analyze_wallet
+```
+
+Prompt:
+
+```text
+Analyze this Autheo wallet's balances,
+recent transactions, contracts,
+and marketplace activity.
+```
+
+Another:
+
+```text
+autheo_find_compute
+```
+
+Prompt:
+
+```text
+Find infrastructure matching the user's
+CPU, RAM, GPU, storage, price and duration
+requirements.
+```
+
+And:
+
+```text
+autheo_deployment_review
+```
+
+Which could instruct the AI to inspect:
+
+```text
+workload
+requirements
+provider
+price
+reputation
+contract
+network
+security
+```
+
+before deployment.
+
+---
+
+# The REALLY Interesting Part
+
+Eventually you can make **Autheo MCP itself a marketplace participant interface**.
+
+Imagine:
+
+```text
+Claude / ChatGPT / Kimi / OpenAI Agent
+                │
+                ▼
+           Autheo MCP
+                │
+       ┌────────┼─────────┐
+       ▼        ▼         ▼
+    Compute   Storage   Hosting
+       │        │         │
+       └────────┼─────────┘
+                ▼
+          THEO Marketplace
+```
+
+Then an AI agent could autonomously discover infrastructure.
+
+For example:
+
+> I need somewhere to run this container for 30 days. Find infrastructure under my budget, with at least 99% uptime history, 32 GB RAM, and 8 CPU cores.
+
+Autheo MCP handles:
+
+```text
+requirements
+      ↓
+market search
+      ↓
+provider reputation
+      ↓
+pricing
+      ↓
+THEO/USD conversion
+      ↓
+contract options
+      ↓
+simulation
+      ↓
+approval
+      ↓
+order
+```
+
+That is much more compelling than simply exposing RPC.
+
+---
+
+# V1 — What I'd Actually Build
+
+Don't build all of this at once.
+
+I'd make **Autheo MCP v0.1** with about 15 tools:
+
+### Blockchain
+
+```text
+autheo_get_network_status
+autheo_get_latest_block
+autheo_get_transaction
+autheo_get_account
+autheo_get_balance
+```
+
+### THEO
+
+```text
+autheo_get_theo_price
+autheo_convert_theo_usd
+```
+
+### Marketplace
+
+```text
+autheo_marketplace_categories
+autheo_compute_search
+autheo_storage_search
+autheo_get_provider
+autheo_get_order
+```
+
+### DevHub
+
+```text
+autheo_devhub_search
+autheo_devhub_get_project
+autheo_devhub_get_job
+```
+
+### Simulation
+
+```text
+autheo_compute_quote
+autheo_storage_quote
+```
+
+**No transaction execution yet.**
+
+That gives you a very useful MCP immediately without introducing wallet/key risk.
+
+---
+
+# V2
+
+Then:
+
+```text
+Provider reservation
+Order creation
+Contract creation
+Workload submission
+Deployment
+Metering
+Evidence
+```
+
+with:
+
+```text
+SIMULATE
+   ↓
+APPROVE
+   ↓
+EXECUTE
+```
+
+---
+
+# V3
+
+Then you get into the really interesting stuff:
+
+```text
+AI Agent
+    ↓
+Autheo MCP
+    ↓
+Marketplace discovery
+    ↓
+Provider negotiation
+    ↓
+THEO pricing
+    ↓
+Contract selection
+    ↓
+Resource reservation
+    ↓
+Deployment
+    ↓
+Metering
+    ↓
+Evidence
+    ↓
+Payment
+```
+
+At that point Autheo isn't merely **blockchain infrastructure that has an MCP**.
+
+It's becoming an **AI-native decentralized infrastructure marketplace**.
+
+And I would keep the MCP server **outside the consensus layer**. It should be an application/developer interface into Autheo, not something validators need to run as part of consensus.
+
+### The first repo I'd make
+
+```text
+autheo-mcp/
+├── server.py
+├── config.py
+├── rpc.py
+├── oracle.py
+├── marketplace.py
+├── devhub.py
+├── models.py
+├── security.py
+├── pyproject.toml
+└── README.md
+```
+
+Then we build it outward from there.
+
+**The very first milestone should be:** connect Python → Autheo RPC → expose `get_network_status`, `get_block`, `get_account`, `get_balance`, THEO price, and marketplace search through MCP. Once those work, the rest of the architecture has somewhere real to plug into.
