@@ -11,6 +11,7 @@ from typing import Any
 import httpx
 
 from autheo_mcp.services.config import AutheoConfig
+from autheo_mcp.services.http import path_id
 
 
 class RpcClient:
@@ -27,7 +28,7 @@ class RpcClient:
         if self._client is None or self._client.is_closed:
             self._client = httpx.AsyncClient(
                 timeout=httpx.Timeout(self.config.timeout),
-                follow_redirects=True,
+                follow_redirects=False, trust_env=False,
             )
         return self._client
 
@@ -96,8 +97,8 @@ class RpcClient:
     async def get_account(self, address: str) -> dict[str, Any]:
         # Cosmos SDK auth account query via REST path when available,
         # fallback to a minimal JSON-RPC shape.
-        base = self.config.rpc_url.rstrip("/").replace("/rpc", "").replace(":26657", "")
-        url = f"{base}:1317/cosmos/auth/v1beta1/accounts/{address}"
+        base = self.config.rest_url.rstrip("/")
+        url = f"{base}/cosmos/auth/v1beta1/accounts/{path_id(address)}"
         try:
             response = await self.client.get(url)
             response.raise_for_status()
@@ -113,8 +114,8 @@ class RpcClient:
         address: str,
         denom: str = "utheo",
     ) -> dict[str, Any]:
-        base = self.config.rpc_url.rstrip("/").replace("/rpc", "").replace(":26657", "")
-        url = f"{base}:1317/cosmos/bank/v1beta1/balances/{address}"
+        base = self.config.rest_url.rstrip("/")
+        url = f"{base}/cosmos/bank/v1beta1/balances/{path_id(address)}"
         try:
             response = await self.client.get(url)
             response.raise_for_status()

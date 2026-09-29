@@ -32,7 +32,7 @@ class MarketplaceClient:
         http: AutheoHttpClient | None = None,
     ) -> None:
         self.config = config or AutheoConfig()
-        self.http = http or AutheoHttpClient(self.config)
+        self.http = http or AutheoHttpClient(self.config, scope="private_marketplace")
 
     def _url(self, path: str) -> str:
         base = self.config.marketplace_url.rstrip("/")
@@ -85,22 +85,11 @@ class MarketplaceClient:
         if idempotency_key:
             headers["Idempotency-Key"] = idempotency_key
 
-        if method.upper() == "GET":
-            response = await self.http.client.get(
-                url,
-                headers=self.http._headers(headers),
-            )
-        elif method.upper() == "POST":
-            response = await self.http.client.post(
-                url,
-                content=body,
-                headers=self.http._headers(headers),
-            )
-        else:
+        if method.upper() not in {"GET", "POST"}:
             raise ValueError(f"Unsupported HTTP method: {method}")
-
-        response.raise_for_status()
-        return response.json()
+        headers["Content-Type"] = "application/json"
+        # Use exactly the bytes covered by the signature. Never add Hive credentials.
+        return await self.http.request(method, url, content=body, headers=headers)
 
     async def list_deployments(self) -> dict[str, Any]:
         return await self._request("GET", "/v1/marketplace/l0/deployments")

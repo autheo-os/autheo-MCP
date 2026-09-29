@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 
 def _env(name: str, default: str = "") -> str:
@@ -25,6 +26,16 @@ class AutheoConfig:
             "AUTHEO_RPC_URL",
             "http://127.0.0.1:26657",
         )
+
+        # Cosmos REST is a distinct service; never append ports to an RPC URL.
+        self.rest_url = _env("AUTHEO_REST_URL", "http://127.0.0.1:1317")
+        self.marketplace_api_url = _env("AUTHEO_MARKETPLACE_API_URL", "")
+        self.marketplace_bearer_token = _env("AUTHEO_MARKETPLACE_BEARER_TOKEN", "")
+        self.marketplace_ca_file = _env("AUTHEO_MARKETPLACE_CA_FILE", "")
+        self.marketplace_cert_file = _env("AUTHEO_MARKETPLACE_CERT_FILE", "")
+        self.marketplace_key_file = _env("AUTHEO_MARKETPLACE_KEY_FILE", "")
+        # Explicit optional JSON price feed URL (not a wallet-config base URL).
+        self.price_feed_url = _env("AUTHEO_PRICE_FEED_URL", "")
 
         # EVM JSON-RPC endpoint.
         self.evm_rpc_url: str = _env("AUTHEO_EVM_RPC_URL", "")
@@ -85,14 +96,28 @@ class AutheoConfig:
 
         return headers
 
+    @staticmethod
+    def safe_url(value: str) -> str:
+        parts = urlsplit(value)
+        host = parts.hostname or ""
+        if ":" in host:
+            host = f"[{host}]"
+        if parts.port:
+            host += f":{parts.port}"
+        return urlunsplit((parts.scheme, host, parts.path, "", ""))
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "network": self.network,
-            "rpc_url": self.rpc_url,
-            "evm_rpc_url": self.evm_rpc_url or None,
-            "devhub_url": self.devhub_url,
-            "marketplace_url": self.marketplace_url,
-            "oracle_url": self.oracle_url,
+            "rpc_url": self.safe_url(self.rpc_url),
+            "evm_rpc_url": self.safe_url(self.evm_rpc_url) or None,
+            "rest_url": self.safe_url(self.rest_url),
+            "marketplace_api_url": self.safe_url(self.marketplace_api_url) or None,
+            "marketplace_session_configured": bool(self.marketplace_bearer_token),
+            "price_feed_url": self.safe_url(self.price_feed_url) or None,
+            "devhub_url": self.safe_url(self.devhub_url),
+            "marketplace_url": self.safe_url(self.marketplace_url),
+            "oracle_url": self.safe_url(self.oracle_url),
             "hive_jwt_configured": bool(self.hive_jwt),
             "hive_api_key_configured": bool(self.hive_api_key),
             "hive_team": self.hive_team,

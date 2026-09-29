@@ -38,21 +38,23 @@ async def test_autheo_get_network_status_unhealthy(devhub_url: str) -> None:
 
 
 @respx.mock
-async def test_autheo_compute_quote_fallback(devhub_url: str) -> None:
-    respx.post(f"{devhub_url}/v1/estimate").mock(return_value=httpx.Response(500))
+async def test_autheo_compute_quote_unavailable(devhub_url: str) -> None:
+    respx.get(f"{devhub_url}/v1/billing/wallet-config").respond(200, json={})
     result = await server_module.autheo_compute_quote(cpu=1, ram_gb=1, duration_hours=1)
     assert result["simulation"] is True
-    assert result["price_theo"] == 1.5
-    assert result["estimate"]["fallback"] is True
+    assert result["price_theo"] is None
+    assert result["estimate"]["status"] == "unavailable"
+    assert all(call.request.method == "GET" for call in respx.calls)
 
 
 @respx.mock
-async def test_autheo_storage_quote_fallback(devhub_url: str) -> None:
-    respx.post(f"{devhub_url}/v1/estimate").mock(return_value=httpx.Response(500))
+async def test_autheo_storage_quote_unavailable(devhub_url: str) -> None:
+    respx.get(f"{devhub_url}/v1/billing/wallet-config").respond(200, json={})
     result = await server_module.autheo_storage_quote(storage_gb=10, duration_days=1)
     assert result["simulation"] is True
-    assert result["price_theo"] == 12.0  # 10 GB * 0.05 THEO/GB/h * 24h
-    assert result["estimate"]["fallback"] is True
+    assert result["price_theo"] is None
+    assert result["estimate"]["status"] == "unavailable"
+    assert all(call.request.method == "GET" for call in respx.calls)
 
 
 @respx.mock

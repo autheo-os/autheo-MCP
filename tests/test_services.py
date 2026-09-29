@@ -21,6 +21,7 @@ def config() -> AutheoConfig:
     cfg = AutheoConfig()
     cfg.devhub_url = "http://devhub.test"
     cfg.marketplace_url = "http://devhub.test"
+    cfg.oracle_url = cfg.devhub_url
     cfg.rpc_url = "http://rpc.test:26657"
     cfg.hive_jwt = ""
     cfg.hive_api_key = ""
@@ -58,7 +59,7 @@ async def test_devhub_get_node(config: AutheoConfig) -> None:
 
 @respx.mock
 async def test_devhub_list_deployments(config: AutheoConfig) -> None:
-    respx.get("http://devhub.test/v1/deployments").mock(
+    respx.get("http://devhub.test/deployments").mock(
         return_value=httpx.Response(
             200,
             json={"deployments": [{"id": "dep-1", "project": "demo"}]},

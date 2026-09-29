@@ -1,0 +1,14 @@
+[
+  {
+    "name": "L0_devhub_deploy",
+    "repository": "https://github.com/ThothDivision/L0_devhub_deploy",
+    "revision": "a79661405925ab6fbca8ab42463b5d6ff52ab36e",
+    "role": "unmodified reference source, not runtime dependency"
+  },
+  {
+    "name": "autheo_marketplace_deploy",
+    "repository": "https://github.com/ThothDivision/autheo_marketplace_deploy",
+    "revision": "8cda17f6a908371f5045a560fd2a9d6a39f5af67",
+    "role": "unmodified reference source, not runtime dependency"
+  }
+]
