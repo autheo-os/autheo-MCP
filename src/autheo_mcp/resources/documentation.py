@@ -9,7 +9,6 @@ network or marketplace operations.
 
 from __future__ import annotations
 
-
 DOCUMENTATION: dict[str, str] = {
 
     "overview": """

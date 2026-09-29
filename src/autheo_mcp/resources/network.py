@@ -13,7 +13,6 @@ from __future__ import annotations
 import os
 from typing import Any
 
-
 AUTHEO_NETWORK = os.getenv(
     "AUTHEO_NETWORK",
     "autheo-mainnet",
