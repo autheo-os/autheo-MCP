@@ -234,7 +234,7 @@ def test_config_redacts_url_secrets(cfg):
 async def test_mcp_surface_has_annotations_and_no_mutations():
     tools = await server.mcp.list_tools()
     names = {tool.name for tool in tools}
-    assert len(names) == 39
+    assert len(names) == 44
     assert "autheo_marketplace_list_listings" in names
     assert not any("create_payment" in name or "submit_allocation" in name for name in names)
     assert all(tool.annotations.readOnlyHint for tool in tools)

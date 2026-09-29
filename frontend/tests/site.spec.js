@@ -4,9 +4,9 @@ test("catalog filtering, expansion, empty state and details work", async ({
   page,
 }) => {
   await page.goto("./");
-  await expect(page.locator("#tool-count")).toHaveText("39 tools · 6 shown");
-  await page.getByRole("button", { name: "Show all 39 tools" }).click();
-  await expect(page.locator(".tool-card")).toHaveCount(39);
+  await expect(page.locator("#tool-count")).toHaveText("44 tools · 6 shown");
+  await page.getByRole("button", { name: "Show all 44 tools" }).click();
+  await expect(page.locator(".tool-card")).toHaveCount(44);
   await page.getByRole("button", { name: "DevHub", exact: true }).click();
   await page.getByRole("searchbox").fill("build logs");
   await expect(page.locator(".tool-card")).toHaveCount(1);
@@ -18,7 +18,7 @@ test("catalog filtering, expansion, empty state and details work", async ({
   await page.getByRole("searchbox").fill("nonexistent xyz");
   await expect(page.locator("#empty-state")).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("#tool-count")).toHaveText("39 tools · 6 shown");
+  await expect(page.locator("#tool-count")).toHaveText("44 tools · 6 shown");
   await page.getByRole("link", { name: "Explore marketplace tools" }).click();
   await expect(
     page.getByRole("button", { name: "Marketplace", exact: true }),
@@ -98,7 +98,7 @@ test("page is accessible, responsive, and makes no external service requests", a
       external.push(request.url());
   });
   await page.goto("./");
-  await expect(page.locator("#tool-count")).toHaveText("39 tools · 6 shown");
+  await expect(page.locator("#tool-count")).toHaveText("44 tools · 6 shown");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -134,7 +134,7 @@ test("narrow screens and keyboard navigation remain usable", async ({
 }) => {
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto("./");
-  await expect(page.locator("#tool-count")).toHaveText("39 tools · 6 shown");
+  await expect(page.locator("#tool-count")).toHaveText("44 tools · 6 shown");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

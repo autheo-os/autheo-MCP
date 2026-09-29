@@ -130,7 +130,7 @@ async def main():
                     await session.initialize()
                     listing = await session.list_tools()
                     names = {t.name for t in listing.tools}
-                    assert len(names) == 39
+                    assert len(names) == 44
                     data = {}
                     for name in sorted(names):
                         result = await session.call_tool(name, arguments.get(name, {}))
@@ -146,6 +146,7 @@ async def main():
                     invalid = await session.call_tool("autheo_marketplace_estimate_listing", {"listing_id": "l1", "quantity": 0})
                     assert invalid.isError
                     resources = await session.list_resources()
+                    assert len(resources.resources) == 5
                     for resource in resources.resources:
                         await session.read_resource(resource.uri)
                     report["transports"][label] = {"tools": len(names), "successful_calls": len(data), "resources": len(resources.resources), "invalid_input_rejected": True}

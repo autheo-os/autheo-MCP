@@ -74,6 +74,14 @@ class AutheoConfig:
             "AUTHEO_MARKETPLACE_HMAC_SECRET", ""
         )
 
+        # Read-only external agent-environment inspection. No private signing material.
+        self.agent_trust_snapshot = _env("AUTHEO_AGENT_TRUST_SNAPSHOT")
+        self.agent_trust_public_key = _env("AUTHEO_AGENT_TRUST_PUBLIC_KEY")
+        self.agent_trust_issuer = _env("AUTHEO_AGENT_TRUST_ISSUER")
+        self.agent_trust_key_id = _env("AUTHEO_AGENT_TRUST_KEY_ID")
+        self.agent_trust_subject = _env("AUTHEO_AGENT_TRUST_SUBJECT")
+        self.agent_trust_environment = _env("AUTHEO_AGENT_TRUST_ENVIRONMENT")
+
         # Request timeouts.
         self.timeout: float = float(_env("AUTHEO_REQUEST_TIMEOUT", "30"))
 

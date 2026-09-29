@@ -24,6 +24,7 @@ from typing import Any
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
+from autheo_mcp.services.agent_trust import AgentTrustReader, guide
 from autheo_mcp.services.config import AutheoConfig
 from autheo_mcp.services.devhub import DevHubClient, format_deployment, format_job, format_nodes
 from autheo_mcp.services.marketplace import MarketplaceClient
@@ -1099,6 +1100,45 @@ SIMULATE:
 EXECUTE:
 - Disabled in V1
 """.strip()
+
+
+@mcp.tool(annotations=READ_ONLY)
+async def autheo_agent_trust_guide() -> dict[str, Any]:
+    """Explain agent trust setup and boundaries. Does not issue identity, authority, or wallet access."""
+    return guide()
+
+
+@mcp.tool(annotations=READ_ONLY)
+async def autheo_agent_trust_status() -> dict[str, Any]:
+    """Inspect a pinned-issuer signed snapshot and audit summary. Never grants execution authority."""
+    return AgentTrustReader(_cfg).section("audit")
+
+
+@mcp.tool(annotations=READ_ONLY)
+async def autheo_agent_get_passport() -> dict[str, Any]:
+    """Read the configured agent's issuer-asserted identity, not a proof of legal ownership."""
+    return AgentTrustReader(_cfg).section("passport")
+
+
+@mcp.tool(annotations=READ_ONLY)
+async def autheo_agent_get_mandate() -> dict[str, Any]:
+    """Inspect scoped mandate and DEMO budget summary; no real wallet funds or approvals."""
+    return AgentTrustReader(_cfg).section("mandate")
+
+
+@mcp.tool(annotations=READ_ONLY)
+async def autheo_agent_list_receipts(limit: int = 20) -> dict[str, Any]:
+    """Read up to 20 signed-snapshot receipt summaries; not an independent action/chain proof."""
+    if type(limit) is not int or not 1 <= limit <= 20:
+        raise ValueError("Receipt limit must be between 1 and 20.")
+    return AgentTrustReader(_cfg).section("receipts", limit)
+
+
+@mcp.resource("autheo://agent-trust")
+async def autheo_agent_trust_resource() -> str:
+    """Local documentation of the external agent environment's trust boundary."""
+    import json
+    return json.dumps(guide(), indent=2)
 
 
 # ============================================================================

@@ -29,7 +29,11 @@ def catalog():
         if not any(isinstance(d, ast.Call) and isinstance(d.func, ast.Attribute) and isinstance(d.func.value, ast.Name) and d.func.value.id == "mcp" and d.func.attr == "tool" for d in item.decorator_list):
             continue
         name = item.name
-        if name in CHAIN:
+        if name.startswith("autheo_agent_"):
+            category, access = "Utilities", "Optional local agent-environment snapshot, pinned issuer/public key/agent/environment, and trust dependencies. Read-only; never authorizes execution."
+            if name == "autheo_agent_trust_guide":
+                access = "Local setup documentation; no credentials or snapshot required."
+        elif name in CHAIN:
             category, access = "Blockchain", "Configured CometBFT RPC or Cosmos REST endpoint. Network status also checks DevHub health."
         elif name.startswith("autheo_devhub_") or name in LEGACY:
             category, access = "DevHub", "Configured DevHub URL and Hive identity; scoped to the configured team."

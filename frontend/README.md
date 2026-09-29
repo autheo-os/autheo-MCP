@@ -6,7 +6,7 @@ A responsive, static introduction to Autheo MCP v0.2, contributed by
 ## What is here
 
 - Product explanation and a CSS/SVG diagram of the AI → MCP → service connection.
-- Searchable, filterable catalog of all 39 registered tools, with access and input details.
+- Searchable, filterable catalog of all 44 registered tools, with access and input details.
 - Clearly labeled illustrative workflows (no fabricated live results).
 - macOS/Linux, Windows PowerShell, and common MCP-client setup examples with copy controls.
 - Accessible native controls, keyboard focus, reduced-motion support, and mobile layouts.

@@ -587,5 +587,51 @@
         "required": false
       }
     ]
+  },
+  {
+    "name": "autheo_agent_trust_guide",
+    "category": "Utilities",
+    "mode": "Read",
+    "description": "Explain agent trust setup and boundaries. Does not issue identity, authority, or wallet access.",
+    "access": "Local setup documentation; no credentials or snapshot required.",
+    "inputs": []
+  },
+  {
+    "name": "autheo_agent_trust_status",
+    "category": "Utilities",
+    "mode": "Read",
+    "description": "Inspect a pinned-issuer signed snapshot and audit summary. Never grants execution authority.",
+    "access": "Optional local agent-environment snapshot, pinned issuer/public key/agent/environment, and trust dependencies. Read-only; never authorizes execution.",
+    "inputs": []
+  },
+  {
+    "name": "autheo_agent_get_passport",
+    "category": "Utilities",
+    "mode": "Read",
+    "description": "Read the configured agent's issuer-asserted identity, not a proof of legal ownership.",
+    "access": "Optional local agent-environment snapshot, pinned issuer/public key/agent/environment, and trust dependencies. Read-only; never authorizes execution.",
+    "inputs": []
+  },
+  {
+    "name": "autheo_agent_get_mandate",
+    "category": "Utilities",
+    "mode": "Read",
+    "description": "Inspect scoped mandate and DEMO budget summary; no real wallet funds or approvals.",
+    "access": "Optional local agent-environment snapshot, pinned issuer/public key/agent/environment, and trust dependencies. Read-only; never authorizes execution.",
+    "inputs": []
+  },
+  {
+    "name": "autheo_agent_list_receipts",
+    "category": "Utilities",
+    "mode": "Read",
+    "description": "Read up to 20 signed-snapshot receipt summaries; not an independent action/chain proof.",
+    "access": "Optional local agent-environment snapshot, pinned issuer/public key/agent/environment, and trust dependencies. Read-only; never authorizes execution.",
+    "inputs": [
+      {
+        "name": "limit",
+        "type": "int",
+        "required": false
+      }
+    ]
   }
 ]

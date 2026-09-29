@@ -1,12 +1,12 @@
-# Autheo MCP 0.2
+# Autheo MCP — agent trust inspection prototype
 
-Read-only MCP integration for Autheo DevHub and Marketplace. **39 tools / 4 resources**.
+Read-only MCP integration for Autheo DevHub and Marketplace. **44 tools / 5 resources**.
 Built against the two source repositories pinned in [references/SOURCES.json](references/SOURCES.json).
 
 ## Frontend website
 
 The [`frontend/`](frontend/README.md) directory contains the deployable product
-website: an introduction to Autheo MCP, a searchable catalog of all 39 tools,
+website: an introduction to Autheo MCP, a searchable catalog of all 44 tools,
 illustrative workflows, and platform-specific setup instructions.
 
 ```bash
@@ -16,6 +16,22 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory frontend
 Open `http://127.0.0.1:4173`. See the [frontend guide](frontend/README.md) for
 GitHub Pages and other static-host deployment options. The website does not host
 the MCP server, request credentials, or execute Autheo operations.
+
+## Optional agent trust inspection
+
+This review branch extends v0.2 with **five read-only inspection tools** and
+`autheo://agent-trust`. The sibling **Autheo Agent Environment** owns the local
+prototype's identity, policy, simulated budgets, receipts and checkpoint handoffs.
+MCP only verifies a short-lived signed public summary using an operator-pinned key.
+
+```sh
+python -m pip install -e '.[dev,trust]'
+```
+
+No private key, wallet custody, payment, approval override, mandate issuance or
+live agent migration is exposed. No existing tool becomes policy-enforced simply
+by enabling snapshot inspection. See [the trust bridge guide](docs/AGENT-TRUST.md).
+This is a local prototype branch, not an activated production trust service.
 
 ## What works
 
@@ -121,8 +137,8 @@ python -m mypy src/autheo_mcp
 python review/smoke_upgrade.py
 ```
 
-The protocol check launches both module and console entrypoints, calls all 39 tools
-against localhost fixtures, reads all four resources, checks semantic results and
+The protocol check launches both module and console entrypoints, calls all 44 tools
+against localhost fixtures, reads all five resources, checks semantic results and
 invalid input, and rejects any non-read HTTP operation except read JSON-RPC.
 See [docs/INTEGRATION-CONTRACTS.md](docs/INTEGRATION-CONTRACTS.md) for route evidence,
 and [docs/UPGRADE-RESULTS.md](docs/UPGRADE-RESULTS.md) for the verification summary.

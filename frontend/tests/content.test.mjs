@@ -6,8 +6,8 @@ const catalog = JSON.parse(
   await readFile(new URL("../catalog.json", import.meta.url)),
 );
 test("catalog has unique names, complete metadata, and all supported domains", () => {
-  assert.equal(catalog.length, 39);
-  assert.equal(new Set(catalog.map((t) => t.name)).size, 39);
+  assert.equal(catalog.length, 44);
+  assert.equal(new Set(catalog.map((t) => t.name)).size, 44);
   assert.deepEqual([...new Set(catalog.map((t) => t.category))].sort(), [
     "Blockchain",
     "DevHub",
@@ -20,7 +20,7 @@ test("catalog has unique names, complete metadata, and all supported domains", (
   }
 });
 test("search combines category and case-insensitive multiword queries", () => {
-  assert.equal(filterTools(catalog, "All", "").length, 39);
+  assert.equal(filterTools(catalog, "All", "").length, 44);
   assert.ok(
     filterTools(catalog, "DevHub", "BUILD logs").some(
       (t) => t.name === "autheo_devhub_get_build_logs",
