@@ -76,9 +76,9 @@ class AutheoConfig:
         headers: dict[str, str] = {}
 
         if self.hive_jwt:
-            headers["Authorization"] = f"******"
+            headers["Authorization"] = "Bearer " + self.hive_jwt
         elif self.hive_api_key:
-            headers["Authorization"] = f"******"
+            headers["Authorization"] = "Bearer " + self.hive_api_key
 
         if self.hive_team:
             headers["x-hive-team"] = self.hive_team
