@@ -1,0 +1,23 @@
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+.env
+.env.*
+!.env.example
+
+# Upstream reference snapshots are local material with their own licenses.
+references/*/
+review/pre-upgrade-source.zip
+
+references/*.zip
+review/*.log
+review/upgrade-*.json
