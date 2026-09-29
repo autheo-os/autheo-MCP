@@ -3,6 +3,20 @@
 Read-only MCP integration for Autheo DevHub and Marketplace. **39 tools / 4 resources**.
 Built against the two source repositories pinned in [references/SOURCES.json](references/SOURCES.json).
 
+## Frontend website
+
+The [`frontend/`](frontend/README.md) directory contains the deployable product
+website: an introduction to Autheo MCP, a searchable catalog of all 39 tools,
+illustrative workflows, and platform-specific setup instructions.
+
+```bash
+python3 -m http.server 4173 --bind 127.0.0.1 --directory frontend
+```
+
+Open `http://127.0.0.1:4173`. See the [frontend guide](frontend/README.md) for
+GitHub Pages and other static-host deployment options. The website does not host
+the MCP server, request credentials, or execute Autheo operations.
+
 ## What works
 
 - **Marketplace:** public listings/details/capacity, authenticated buyer orders,
