@@ -1,0 +1,74 @@
+Metadata-Version: 2.4
+Name: autheo-mcp
+Version: 0.1.0
+Summary: Model Context Protocol server for the Autheo blockchain, marketplace, DevHub, compute, storage, providers, nodes, and contracts.
+Author: Autheo
+License: MIT
+Keywords: autheo,mcp,model-context-protocol,blockchain,cosmos,evm,cometbft,ibc,compute,storage,marketplace,devhub,web3,ai
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Internet
+Classifier: Topic :: System :: Distributed Computing
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: mcp<2.0.0,>=1.0.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: pydantic>=2.7.0
+Requires-Dist: pydantic-settings>=2.2.1
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
+Requires-Dist: ruff>=0.6.0; extra == "dev"
+Requires-Dist: mypy>=1.10.0; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest>=8.0.0; extra == "test"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "test"
+Requires-Dist: pytest-cov>=5.0.0; extra == "test"
+
+# Autheo MCP
+
+Model Context Protocol (MCP) server for the Autheo decentralized infrastructure ecosystem.
+
+Autheo MCP allows AI assistants and MCP-compatible clients to interact with Autheo infrastructure through a structured interface.
+
+The server provides access to:
+
+- Autheo blockchain information
+- Layer 0 network status
+- Layer 1 EVM information
+- Cosmos / CometBFT data
+- Accounts and balances
+- THEO pricing
+- Compute marketplace
+- GPU marketplace
+- Storage marketplace
+- Hosting infrastructure
+- Providers
+- Provider reputation
+- Nodes
+- Long-term infrastructure contracts
+- Marketplace orders
+- DevHub projects
+- DevHub builds
+- DevHub deployments
+- DevHub jobs
+- Workload evidence
+- Transaction inspection
+- Transaction simulation
+- Unsigned transaction construction
+
+The project is designed around a strict separation between:
+
+```text
+READ
+  ↓
+SIMULATE
+  ↓
+EXECUTE
