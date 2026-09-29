@@ -64,6 +64,20 @@ JavaScript, CSS, SVG, and JSON with their normal MIME types. HTTPS enables norma
 clipboard support; if clipboard access is denied, the UI selects the text for
 manual copying.
 
+### Vercel
+
+A `vercel.json` is included at the repository root with the following settings:
+
+- **Build command:** `node frontend/scripts/build.mjs`
+- **Output directory:** `frontend/dist`
+- **Install command:** `npm --prefix frontend ci`
+- **Framework preset:** Other (static)
+
+Import the repository on Vercel. The project root is the repository root; Vercel
+uses `vercel.json` to locate the frontend build. No framework server, serverless
+function, or environment variables are required. The deployment serves only the
+seven allowlisted static assets produced by `scripts/build.mjs`.
+
 Local deployment-output preview:
 
 ```sh
