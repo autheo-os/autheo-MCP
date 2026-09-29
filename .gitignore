@@ -21,3 +21,9 @@ review/pre-upgrade-source.zip
 references/*.zip
 review/*.log
 review/upgrade-*.json
+
+# Static frontend tooling and verification output.
+frontend/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
