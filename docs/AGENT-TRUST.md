@@ -72,3 +72,7 @@ For configured end-to-end coverage, install both sibling projects in one test ve
 and run `python /path/to/autheo-agent-environment/review/smoke_mcp_bridge.py`.
 
 No production backend/agent/wallet access is needed for either test path.
+
+## Companion projects and target platform
+
+The [Agent Environment](https://github.com/SolutionsAsService/autheo-agent-environment) owns the local trust prototype. Its [standalone site](https://github.com/SolutionsAsService/autheo-agent-environment-site) explains the architecture. See [Dev Portal / Layer 0 integration](DEV-PORTAL-LAYER0.md) for planned adapter boundaries and gates. No live platform adapter or wallet execution is included.
