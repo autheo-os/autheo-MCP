@@ -1,2 +1,0 @@
-[console_scripts]
-autheo-mcp = autheo_mcp.server:main
