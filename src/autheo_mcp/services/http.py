@@ -9,13 +9,45 @@ import httpx
 
 from autheo_mcp.services.config import AutheoConfig
 
+_HINTS = {
+    "sign_in_redirect": (
+        "the service redirected to a sign-in page; for the hosted DevHub set "
+        "AUTHEO_DEVHUB_URL to the /cloud API base (or AUTHEO_PROFILE=dev)"
+    ),
+    "redirect": "the service answered with a redirect; check the configured base URL",
+    "unauthenticated": (
+        "credentials missing or rejected; set AUTHEO_HIVE_API_KEY (DevHub API key) "
+        "or AUTHEO_HIVE_JWT in the server environment"
+    ),
+    "forbidden": "credentials accepted but not authorized for this team/resource",
+    "anonymous": (
+        "the request was served anonymously (x-hive-anon); configure DevHub credentials"
+    ),
+}
+
 
 class ServiceError(RuntimeError):
     """Safe to show in a tool response: never includes headers or response bodies."""
 
-    def __init__(self, status: int | None = None) -> None:
+    def __init__(self, status: int | None = None, reason: str | None = None) -> None:
         self.status = status
-        super().__init__(f"Upstream HTTP {status}" if status else "Upstream request failed")
+        self.reason = reason
+        message = f"Upstream HTTP {status}" if status else "Upstream request failed"
+        if reason in _HINTS:
+            message += f" ({_HINTS[reason]})"
+        super().__init__(message)
+
+
+def _classify(response: httpx.Response) -> str | None:
+    status = response.status_code
+    if 300 <= status < 400:
+        location = response.headers.get("location", "")
+        return "sign_in_redirect" if "sign-in" in location or "sign_in" in location else "redirect"
+    if status == 401:
+        return "unauthenticated"
+    if status == 403:
+        return "forbidden"
+    return None
 
 
 def path_id(value: str) -> str:
@@ -56,6 +88,11 @@ class AutheoHttpClient:
             headers.update(extra)
         return headers
 
+    def _reason(self, response: httpx.Response) -> str | None:
+        # Configuration hints name DevHub settings, so only DevHub calls get them;
+        # Marketplace/bridge errors keep their bare, non-reflecting form.
+        return _classify(response) if self.scope == "devhub" else None
+
     async def request(self, method: str, url: str, *, params: dict[str, Any] | None = None,
                       headers: dict[str, str] | None = None, content: bytes | None = None,
                       json: dict[str, Any] | None = None, text: bool = False) -> Any:
@@ -70,11 +107,17 @@ class AutheoHttpClient:
         try:
             response = await self.client.request(method, url, params=params,
                 headers=self._headers(headers), content=content, json=json)
+            if response.is_redirect:
+                raise ServiceError(response.status_code, self._reason(response))
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
-            raise ServiceError(exc.response.status_code) from None
+            raise ServiceError(exc.response.status_code, self._reason(exc.response)) from None
         except httpx.RequestError:
             raise ServiceError() from None
+        if self.scope == "devhub" and response.headers.get("x-hive-anon") == "1" \
+                and (self.config.hive_jwt or self.config.hive_api_key):
+            # Credentials were sent but the gateway treated the call as anonymous.
+            raise ServiceError(response.status_code, "anonymous")
         if text:
             return response.text
         try:

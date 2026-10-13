@@ -13,13 +13,38 @@ def _env(name: str, default: str = "") -> str:
     return os.getenv(name, default).strip()
 
 
+# Named deployment presets. A preset only supplies defaults; every explicit
+# AUTHEO_* variable still wins. The hosted DevHub serves the Hive admin API
+# under the /cloud path prefix of its web origin (the origin root redirects to
+# Clerk sign-in), and authenticates with a DevHub API key or minted session.
+PROFILES: dict[str, dict[str, str]] = {
+    "local": {},
+    "dev": {
+        "AUTHEO_DEVHUB_URL": "https://dev.autheo.com/cloud",
+        "AUTHEO_NETWORK": "autheo-devnet",
+    },
+}
+
+
+def _profile_default(profile: str, name: str, default: str) -> str:
+    return PROFILES.get(profile, {}).get(name, default)
+
+
 class AutheoConfig:
     """
     Runtime configuration loaded from environment variables.
     """
 
     def __init__(self) -> None:
-        self.network: str = _env("AUTHEO_NETWORK", "autheo-mainnet")
+        self.profile: str = _env("AUTHEO_PROFILE", "local").lower() or "local"
+        if self.profile not in PROFILES:
+            raise ValueError(
+                f"Unknown AUTHEO_PROFILE {self.profile!r}; expected one of {sorted(PROFILES)}"
+            )
+        p = self.profile
+        self.network: str = _env(
+            "AUTHEO_NETWORK", _profile_default(p, "AUTHEO_NETWORK", "autheo-mainnet")
+        )
 
         # Cosmos/CometBFT RPC endpoint.
         self.rpc_url: str = _env(
@@ -43,7 +68,7 @@ class AutheoConfig:
         # DevHub / Hive Admin API endpoint (loopback/private).
         self.devhub_url: str = _env(
             "AUTHEO_DEVHUB_URL",
-            "http://127.0.0.1:8786",
+            _profile_default(p, "AUTHEO_DEVHUB_URL", "http://127.0.0.1:8786"),
         )
 
         # Marketplace service endpoint. Defaults to the same DevHub listener
@@ -116,6 +141,7 @@ class AutheoConfig:
 
     def as_dict(self) -> dict[str, Any]:
         return {
+            "profile": self.profile,
             "network": self.network,
             "rpc_url": self.safe_url(self.rpc_url),
             "evm_rpc_url": self.safe_url(self.evm_rpc_url) or None,

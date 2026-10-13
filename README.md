@@ -65,12 +65,43 @@ python -m autheo_mcp.server
 
 On Windows, use the same commands inside a virtual environment on your preferred drive.
 
+If `python -m venv` fails with "ensurepip is not available" (Debian/Ubuntu without
+`python3-venv`, no sudo), create the venv without pip and bootstrap it:
+
+```bash
+python3 -m venv --without-pip .venv
+curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+.venv/bin/python /tmp/get-pip.py
+.venv/bin/python -m pip install -e '.[dev,trust]'
+```
+
+## Hosted DevHub (dev.autheo.com)
+
+The hosted DevHub serves the Hive admin API under the **`/cloud`** prefix of its
+web origin. The bare origin redirects to Clerk sign-in, so pointing
+`AUTHEO_DEVHUB_URL` at `https://dev.autheo.com` fails with HTTP 307.
+
+```bash
+export AUTHEO_PROFILE=dev            # = AUTHEO_DEVHUB_URL=https://dev.autheo.com/cloud
+export AUTHEO_HIVE_API_KEY=...        # DevHub → API keys; or AUTHEO_HIVE_JWT
+export AUTHEO_HIVE_TEAM=personal      # or your team slug
+autheo-mcp
+```
+
+`autheo_devhub_status` / health works without credentials (`/cloud/healthz`);
+every data route answers 401 until a key or session is configured. Errors from
+DevHub calls now name the likely fix (missing `/cloud`, missing/rejected
+credentials, anonymous session) without reflecting response bodies. Explicit
+`AUTHEO_*` variables always override the profile. The Marketplace is a separate
+origin; `/cloud/v1/marketplace/*` is not served by the hosted DevHub.
+
 All configuration comes from the process environment. `.env.example` documents
 names but is not automatically loaded. Never put credentials in MCP tool arguments.
 
 | Setting | Meaning / default |
 | --- | --- |
-| `AUTHEO_DEVHUB_URL` | Private Hive admin origin; default `http://127.0.0.1:8786` |
+| `AUTHEO_PROFILE` | `local` (default) or `dev` (hosted DevHub at `https://dev.autheo.com/cloud`); explicit variables win |
+| `AUTHEO_DEVHUB_URL` | Hive admin API base; default `http://127.0.0.1:8786` (`https://dev.autheo.com/cloud` with `AUTHEO_PROFILE=dev`) |
 | `AUTHEO_HIVE_JWT` / `AUTHEO_HIVE_API_KEY` | DevHub bearer identity; JWT takes precedence |
 | `AUTHEO_HIVE_TEAM` | DevHub team; default `personal`; never forwarded to Marketplace |
 | `AUTHEO_MARKETPLACE_API_URL` | Marketplace application origin; **unset by default** |
